@@ -1,0 +1,411 @@
+<style>
+.table {
+    width: 60%!important;
+}
+
+td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 1px;
+}
+h3{
+	color: green;
+	font-size: 16px;
+}
+th{
+	background-color: #8B269F;
+	border: 1px solid #dddddd;
+	text-align: left;
+    padding: 8px;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.form-control{
+  width: 65%!important;
+}
+.btn {
+    height: 32px;
+    min-width: 88px;
+   
+}
+</style>
+<br><br>
+ <%= form_for @warehouse,:url=>{:controller=>"warehouses",:action=>"warehouse_admin"} do |f| %>
+     <div class="form-col">
+      <div class="form-group">
+      <%= f.label :warehouse %>
+      <%= f.collection_select :id, Warehouse.all, :id, :warehouse_name,{include_blank:"Select"},:class=>"form-control"%>
+    
+  </div>
+
+  </div>
+  <%=f.submit "click"%>
+  <%end%>
+  <a type="button"  data-toggle="modal" data-target="#myModal" style="float:right">Suspense&Advance Approval&nbsp;&nbsp;&nbsp;(<%=@ids.count%>)</a>
+
+
+  <a type="button"  data-toggle="modal" data-target="#myModal1" style="float:right">Location Aprroval&nbsp;&nbsp;&nbsp;(<%=@location.count%>)</a>
+
+<br><br>
+
+<center><table class="table">
+<h4>Today's Stock</h4>
+<thead>
+<tr>
+<th>Warehouse Name</th>
+<th >By Book Stock</th>
+<th>Physical Stock</th>
+</tr>
+</thead>
+
+<tbody>
+<%Warehouse.ids.map do |l|%>
+<tr><td><%=Warehouse.find(l).warehouse_name%></td>
+<%inward_total=Inward.where(:warehouse_id=>l).pluck(:total_quantity).compact.sum%>
+<%outward_current=Outward.where(:payment_type=>0).pluck(:total_quantity).compact.sum%>
+<%outward_advance_bill=Outward.where(:payment_type=>1).where(:status=>4).pluck(:total_quantity).compact.sum%>
+<%outward_suspense_bill=Outward.where(:payment_type=>2).where(:status=>4).pluck(:total_quantity).compact.sum%>
+<%outward_suspense_dispatch=Outward.where(:payment_type=>2).where(:status=>3).pluck(:total_quantity).compact.sum%>
+<td><%=inward_total-outward_current-outward_advance_bill-outward_suspense_bill%></td>
+<td><%=inward_total-outward_current-outward_suspense_dispatch+outward_advance_bill%></td>
+<%end%></tr>
+</tbody>
+</table>
+</center>
+<br><br>
+
+<center><table class="table">
+<h4>Direct Sale</h4>
+<%=form_for Damage.new ,:url=>{:controller=>"companies",:action=>"direct_sale"} do |o|%>
+<tr>
+<td ><input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom3" type="text" placeholder="From" required></td>
+<td><input type="text" name="to" class="form-control txtTo" id="txtTo3" placeholder="To" required></td>
+ <td><%= o.submit "click", class:"btn btn-info"%></td>
+</tr>
+<%end%>
+</table>
+<center><table class="table">
+<thead>
+<tr>
+<th>Warehouse Name</th>
+<th>Direct Sale</th>
+</tr>
+</thead>
+<%Warehouse.ids.map do |x|%>
+<tr>
+<td><%=Warehouse.find(x).warehouse_name%></td>
+<%unless params[:to3].present?%>
+<td><%=Outward.where(:warehouse_id=>x).where(:status=>5).where(:created_at=>Date.today-10..Date.today+1).pluck(:total_quantity).compact.sum%></td>
+<%else%>
+<td><%=Outward.where(:warehouse_id=>x).where(:status=>5).where(:created_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum%></td>
+<%end%><%end%></tr>
+</table></center><br><br>
+
+
+
+
+
+<center>
+<table class="table">
+<h4>Damages Bags</h4>
+<%=form_for Damage.new ,:url=>{:controller=>"companies",:action=>"damage_date"} do |o|%>
+<tr>
+<td ><input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom" type="text" placeholder="From" required></td>
+<td><input type="text" name="to" class="form-control txtTo" id="txtTo" placeholder="To" required></td>
+ <td><%= o.submit "click", class:"btn btn-info"%></td>
+</tr>
+<%end%>
+</table>
+<table class="table">
+<thead>
+<tr>
+<th>Warehouse Name</th>
+<th>Inward Damages</th>
+<th>Warehouse Damage</th>
+</tr>
+</thead>
+
+<tbody>
+<%Warehouse.ids.map do |k|%>
+<tr>
+<td><%=Warehouse.find(k).warehouse_name%></td>
+<%unless params[:to].present?%>
+<td><%=Inward.where(:warehouse_id=>k).where(:created_at=>Date.today-10..Date.today+1).pluck(:damage_bags_count).compact.sum%></td>
+<td><%=Damage.where(:warehouse_id=>k).where(:created_at=>Date.today-10..Date.today+1).pluck(:bags_count).compact.sum%></td>
+<%else%>
+<td><%=Inward.where(:warehouse_id=>k).where(:created_at=>params[:from]..params[:to]).pluck(:damage_bags_count).compact.sum%></td>
+<td><%=Damage.where(:warehouse_id=>k).where(:created_at=>params[:from]..params[:to]).pluck(:bags_count).compact.sum%></td>
+<%end%>
+
+<%end%>
+</tr>
+</tbody>
+</table></center>
+<br><br>
+
+<center>
+<table class="table">
+<h4>Return Bags</h4>
+<thead>
+  <%=form_for Damage.new ,:url=>{:controller=>"companies",:action=>"return_date"} do |p|%>
+<tr><td>
+ <input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom1" type="text" placeholder="From" required></td>
+
+ <td><input name="to"  style="margin-left:5%;" type="text" name="to" class="form-control txtTo" id="txtTo1" placeholder="To" required></td>
+
+ <td><%= p.submit "click", class:"btn btn-info"%></td></tr>
+<%end%>
+<tr>
+<th>Warehouse Name</th>
+<th>Returned Bags</th>
+</tr>
+</thead>
+
+<tbody>
+<%Warehouse.ids.map do |k|%>
+<tr>
+<td><%=Warehouse.find(k).warehouse_name%></td>
+<%unless params[:to1].present?%>
+<td><%=Inward.where(:warehouse_id=>k).where(:return=>true).pluck(:total_quantity).compact.sum%></td>
+<%else%>
+<td><%=Inward.where(:warehouse_id=>k).where(:created_at=>params[:from]..params[:to1]).where(:return=>true).pluck(:total_quantity).compact.sum%></td>
+<%end%>
+<%end%>
+</tr>
+</tbody>
+</table>
+</center>
+
+<center>
+<table class="table">
+<h4>Select Date to View Approve/Reject Report</h4>
+
+  <%=form_for Damage.new ,:url=>{:controller=>"companies",:action=>"approve_reject_report"} do |q|%>
+<tr><td>
+ <input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom2" type="text" placeholder="From" required></td>
+
+ <td><input name="to"  style="margin-left:5%;" type="text" name="to" class="form-control txtTo" id="txtTo2" placeholder="To" required></td>
+
+ <td><%= q.submit "click", class:"btn btn-info"%></td></tr>
+<%end%>
+</table>
+<table class="table">
+
+<thead>
+<tr>
+<th>Warehouse Name</th>
+<th>Date</th>
+<th>Party Name</th>
+<th>Total Quantity</th>
+<th>Status</th>
+</thead>
+
+<%Warehouse.ids.map do |r|%>
+<tr>
+<%advance_id=Outward.where(:warehouse_id=>r).where(:payment_type=>1).ids%>
+<%if params[:to2].present?%>
+<%@outward_advance_id=OutwardApproval.where(:outward_id=>advance_id).where(:status=>[1,2]).where(:updated_at=>params[:from]..params[:to2]).pluck(:outward_id)%>
+<%else%>
+<%@outward_advance_id=OutwardApproval.where(:outward_id=>advance_id).where(:status=>[1,2]).where(:updated_at=>Date.today-10..Date.today+1).pluck(:outward_id)%>
+<%end%>
+<%@outward_advance_id.map do |s|%>
+<td><%=Warehouse.find(r).warehouse_name%></td>
+<%data=OutwardApproval.where(:outward_id=>s).pluck(:updated_at,:party_name,:status)%>
+<td><%=data[0][0]%></td>
+<td><%=data[0][1]%></td>
+<td><%=Outward.find(s).total_quantity%></td>
+<td><%if data[0][2]==1%>Approve<%else%>Reject<%end%></td></tr><%end%><%end%>
+
+</tbody>
+
+
+
+
+</tbody>
+</table>
+</center>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <!-- Trigger the modal with a button -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+<center><table class="table">
+<h3>Approval For Suspence and Advance</h3>
+<thead>
+<tr>
+<th>Warehouse Name</th>
+<th>Dispatch Date</th>
+<th>Party_name</th>
+<th>Dispatch Place</th>
+<th>Type of Billing</th>
+<th colspan="2">Approval Status </th>
+</tr>
+</thead>
+
+<tbody>
+<%= form_for :@outward, :url => {:controller => "companies", :action =>"suspense_advance_approve" } do |exp| %> 
+
+<%@suspense_advance.map do |j|%>
+<tr>
+<td><%=Warehouse.find(Outward.find(j[2]).warehouse_id).warehouse_name%></td>
+<td><%=j[0]%></td>
+<td><%=j[1]%></td>
+<td><%=Location.find(Outward.find(j[2]).location_id).location_name%></td>
+<%payment=Outward.find(j[2]).payment_type%>
+<%if payment == 1 %>
+<td>Advance</td>
+<%else%>
+<td>Suspence</td>
+<%end%>
+<td><%= check_box_tag "outward_ids[]", j[2]%></td>
+</tr>
+<%end%>
+<tr><td>
+<%= exp.button "Approve", action: "approve", :name => "commit", :value => "approve", :class=>"btn btn-outline-success btn-sm" %></td>
+<td><%= exp.button "Reject", action: "reject", :name => "commit", :value => "reject", :class=>"btn btn-outline-warning btn-sm" %></td></tr>
+<%end%>
+</tbody>
+</table></center>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+
+</body>
+</html>
+
+
+<div class="container">
+  <!-- Trigger the modal with a button -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+            <center><table class="table">
+<h3>Approval For Location</h3>
+<thead>
+<tr>
+<th>Warehouse Name</th>
+<th>Dispatch Place</th>
+<th colspan="2">Approval Status </th>
+</tr>
+</thead>
+
+<tbody>
+<%= form_for :@outward, :url => {:controller => "companies", :action =>"location_approve" } do |loc| %> 
+
+<%@location.map do |i|%>
+<tr>
+<td><%=Warehouse.find(i.warehouse_id).warehouse_name%></td>
+<td><%=i.location_name%></td>
+<td><%= check_box_tag "location_ids[]", i.id%></td></tr>
+<%end%>
+<tr><td>
+<%= loc.button "Approve", action: "approve", :name => "commit", :value => "approve", :class=>"btn btn-outline-success btn-sm" %></td>
+<td>
+<%= loc.button "Reject", action: "reject", :name => "commit", :value => "reject", :class=>"btn btn-outline-warning btn-sm" %></td></tr>
+<%end%>
+</tbody>
+</table>
+</center>
+            </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+</div>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>
+   
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+    
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/start/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    
+   <script type="text/javascript">
+        $(function(){
+        $("#txtTo").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>
+
+    <script type="text/javascript">
+        $(function(){
+        $("#txtTo1").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom1").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo1").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>
+
+    <script type="text/javascript">
+        $(function(){
+        $("#txtTo2").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom2").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo2").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>
+
+    <script type="text/javascript">
+        $(function(){
+        $("#txtTo3").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom3").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo3").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>

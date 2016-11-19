@@ -1,0 +1,94 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<link href="/assets/style.css" rel="stylesheet">
+
+<p id="notice"><%= notice %></p>
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+  <div class="panel panel-default">
+
+    <div class="panel-heading" role="tab" id="headingOne">
+
+      <strong class="panel-title h-arrow">Listing Users</strong>
+
+        <%= link_to '<i class="fa fa-hand-o-right"></i>'.html_safe,users_path,:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+
+        <%= link_to '<i class="fa fa-pencil"></i>'.html_safe,edit_user_path(@user),:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+
+    </div>
+
+    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+
+      <div class="table-container">
+
+        <table class="table tab-container">
+     
+          <thead class="tab-header blue" style="background-color: #8b269f;">
+        
+            <tr>
+      
+
+    <th>First name</th>
+    <th>Last name</th>
+    <th>User name</th>
+    <th>Password</th>
+    <th>Email</th>
+    <th>Warehouse Name</th>
+    <th>Telephone Number</th>
+    <th>Mobile Number</th>
+    <th>Address</th>
+    <th>Post Code</th>
+    <th>City</th>
+    <th>State</th>
+    <th>Country</th>
+     
+     </tr> 
+
+   </thead>
+
+    <tbody>
+    
+      <tr>  
+
+ <td><%= @user.first_name %></td>
+
+  <td><%= @user.last_name %></td>
+
+  <td><%= @user.user_name %></td>
+
+  <td><%= @user.password %></td>
+
+  <td><%= @user.contact.email %></td>
+
+  <td><%= Warehouse.find(@user.warehouse_id).warehouse_name %></td>
+
+  <td><%= @user.contact.telephone_number %></td>
+
+  <td><%= @user.contact.mobile_number %></td>
+
+  <td><%= @user.address.address1 %></td>
+
+  <td><%= @user.address.post_code %></td>
+
+  <td><%= @user.address.city %></td>
+
+  <td><%= @user.address.state %></td>
+
+  <td><%= @user.address.country %></td>
+
+              </tr>
+    
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

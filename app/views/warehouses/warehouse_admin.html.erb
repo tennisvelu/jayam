@@ -1,0 +1,303 @@
+<style>
+.table {
+    width: 60%!important;
+}
+
+td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 1px;
+}
+h4{
+  color: green;
+  font-size: 16px;
+}
+th{
+  background-color: #8B269F;
+  border: 1px solid #dddddd;
+  text-align: left;
+    padding: 8px;
+    color: white;
+}
+</style>
+
+
+
+<center>
+
+
+<h4>Today's Stock</h4>
+
+<table class="table">
+<thead><tr>
+<th>Date</th>
+<th>By Book Stock</th>
+<th>Physical Stock</th></tr>
+</thead>
+<%current_book=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>0).pluck(:total_quantity).compact.sum%>
+<%advance_book=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>1).where(:status=>4).pluck(:total_quantity).compact.sum%>
+<%advance_dispatch=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>1).where(:status=>3).pluck(:total_quantity).compact.sum%>
+<%suspense_book=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>2).where(:status=>4).pluck(:total_quantity).compact.sum%>
+<%suspence_dispatch=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>2).where(:status=>3).pluck(:total_quantity).compact.sum%>
+<tr>
+  <td><%=Date.today%></td>
+  <td><%=@inward_total-current_book-advance_book-suspense_book%></td>
+  <td><%=@inward_total-current_book-advance_dispatch-suspence_dispatch%></td>
+</tr></table><br><br>
+
+
+<h4>Direct Sale</h4>
+<table class="table">
+
+  <%=form_for Damage.new ,:url=>{:controller=>"warehouses",:action=>"direct_sale"} do |o|%>
+<tr>
+<td ><input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom3" type="text" placeholder="From" required></td>
+<td><input type="text" name="to" class="form-control txtTo" id="txtTo3" placeholder="To" required></td>
+ <td><%= o.submit "click", class:"btn btn-info"%></td>
+
+<%end%></tr></table>
+
+<table class="table">
+<thead>
+  <tr><thead>
+<th>Date</th>
+<th>Truck Number</th>
+<th>Dispatch Place</th>
+<th>Total Quantity</th>
+</thead></tr>
+
+
+<%unless params[:to3].present?%>
+<%@direct_sale=Outward.where(:status=>5).where(:warehouse_id=>@warehouse_session_id).pluck(:outward_date,:truck_number,:location_id,:total_quantity)%>
+<%else%>
+<%@direct_sale=Outward.where(:status=>5).where(:warehouse_id=>@warehouse_session_id).where(:updated_at=>params[:from]..params[:to3]).pluck(:outward_date,:truck_number,:location_id,:total_quantity)%>
+
+<%end%>
+<%@direct_sale.map do |w|%><tr>
+<td><%=w[0]%></td>
+<td><%=w[1]%></td>
+<td><%=Location.find(w[2]).location_name%></td>
+<td><%=w[3]%></td>
+<%end%>
+</tr>
+</table>
+
+
+<h4>Inward</h4>
+<%unless params[:to].present?%>
+<%inward=Inward.where(:warehouse_id=>@warehouse_session_id).where(:updated_at=>Date.yesterday..Time.now).pluck(:inward_number,:inward_date,:total_quantity)%>
+<%else%>
+<%inward=Inward.where(:warehouse_id=>@warehouse_session_id).where(:updated_at=>params[:from]..params[:to]).pluck(:inward_number,:inward_date,:total_quantity)%>
+
+<%end%>
+<table class="table">
+
+  <%=form_for Damage.new ,:url=>{:controller=>"warehouses",:action=>"inward_date"} do |o|%>
+<tr>
+<td ><input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom" type="text" placeholder="From" required></td>
+<td><input type="text" name="to" class="form-control txtTo" id="txtTo" placeholder="To" required></td>
+ <td><%= o.submit "click", class:"btn btn-info"%></td>
+
+<%end%></tr></table>
+
+<table class="table">
+<thead>
+    <tr>
+      <th>Inward Number</th>
+      <th>Inward Date</th>
+      <th>Manufacture Week</th>
+      <th>Total Quantity</th>
+    </tr>
+  </thead>
+<%inward.map do |k|%>
+<tr>
+  <td><%=k[0]%></td>
+  <td><%=k[1]%></td>
+  <td></td>
+  <td><%=k[2]%></td>
+<%end%></tr></table><br><br>
+
+
+
+
+<h4>Outward</h4>
+<table class="table">
+
+<%=form_for Damage.new ,:url=>{:controller=>"warehouses",:action=>"outward_date"} do |o|%>
+<tr>
+<td ><input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom1" type="text" placeholder="From" required></td>
+<td><input type="text" name="to" class="form-control txtTo" id="txtTo1" placeholder="To" required></td>
+ <td><%= o.submit "click", class:"btn btn-info"%></td>
+
+<%end%></tr></table>
+<table class="table">
+  <thead>
+<tr>
+<th>Outward Number</th>
+<th>Outward Date</th>
+<th>Manufacture Week</th>
+<th>Total Quantity</th>
+</thead>
+</tr>
+<%@current_outward.map do |l|%>
+<tr><td><%=l[0]%></td>
+<td><%=l[1]%></td>
+<td></td>
+<td><%=l[2]%></td>
+<%end%></tr>
+<%@advance_outward.map do |n|%>
+<tr><td><%=n[0]%></td>
+<td><%=n[1]%></td>
+<td></td>
+<td><%=n[2]%></td>
+<%end%></tr>
+<%@suspense_outward.map do |m|%>
+<tr><td><%=m[0]%></td>
+<td><%=m[1]%></td>
+<td></td>
+<td><%=m[2]%></td>
+<%end%></tr>
+</table><br><br>
+
+
+
+
+<h4>Damages</h4><a float="right" type="button"  data-toggle="modal" data-target="#myModal">Add Damages</a>
+<table class ="table">
+<%=form_for Damage.new ,:url=>{:controller=>"warehouses",:action=>"damage_date"} do |o|%>
+<tr>
+<td ><input name="from"  style="margin-left:5%;" class="form-control txtFrom" id="txtFrom2" type="text" placeholder="From" required></td>
+<td><input type="text" name="to" class="form-control txtTo" id="txtTo2" placeholder="To" required></td>
+ <td><%= o.submit "click", class:"btn btn-info"%></td>
+
+<%end%></tr></table>
+
+<table class ="table">
+  
+<thead>
+ <tr>
+     <th>Date</th>
+     <th>WEEK NO</th>
+     <th>Damage Bags Count</th>  
+ </tr></thead>
+    <%@damage1.map do |j|%>
+    <tr><td><%=j[0]%></td>
+    <td><%=j[1]%></td>
+    <td><%=j[2]%></td>
+<%end%>
+</tr>
+</table><br><br>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+       
+       <p>
+         <b>Week Number</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Damage Bags Count</b>
+          <%=form_for @damage ,:url=>{:controner=>"warehouses",:action=>"damage_entry"} do |i| %>
+          <div class="input_fields_wrap">
+           <div><input type="text" name="week_no[]"><input type="text" name="bags_count[]"></div>
+            </div><button class="add_field_button">Add</button>
+              
+               
+</p>
+            </div>
+             <div class="modal-footer">
+              <%=i.submit "Submit",class:"btn btn-success" %><%end%>
+               <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+             </div>
+
+<script>
+$(document).ready(function() {
+    var max_fields      = 10; 
+    var wrapper         = $(".input_fields_wrap"); 
+    var add_button      = $(".add_field_button"); 
+    var x = 1; 
+    $(add_button).click(function(e){ 
+        e.preventDefault();
+        if(x < max_fields){ 
+            x++; 
+            $(wrapper).append('<div><input type="text" name="week_no[]"/><input type="text" name="bags_count[]"/><a href="#" class="remove_field">Remove</a></div>'); 
+        }
+    });
+   
+    $(wrapper).on("click",".remove_field", function(e){ 
+        e.preventDefault(); $(this).parent('div').remove(); x--;
+    })
+});
+</script>
+
+            
+            </div>
+          </div>
+         </div>
+        </div>
+      </body>
+     </center>
+
+     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>
+   
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+    
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/start/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    
+   <script type="text/javascript">
+        $(function(){
+        $("#txtTo").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>
+    <script type="text/javascript">
+        $(function(){
+        $("#txtTo1").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom1").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo1").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>
+     <script type="text/javascript">
+        $(function(){
+        $("#txtTo2").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom2").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo2").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>
+     <script type="text/javascript">
+        $(function(){
+        $("#txtTo3").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#txtFrom3").datepicker({ dateFormat: 'yy-mm-dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate());
+            $("#txtTo3").datepicker( "option", "minDate", minValue );
+        })
+    });
+    </script>

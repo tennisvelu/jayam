@@ -1,0 +1,89 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<link href="/assets/style.css" rel="stylesheet">
+
+<p id="notice"><%= notice %></p>
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+  <div class="panel panel-default">
+
+    <div class="panel-heading" role="tab" id="headingOne">
+
+      <strong class="panel-title h-arrow">Listing Companies</strong>
+
+        <%= link_to '<i class="fa fa-hand-o-right"></i>'.html_safe,companies_path,:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+
+        <%= link_to '<i class="fa fa-pencil"></i>'.html_safe,edit_company_path(@company),:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+
+    </div>
+
+    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+
+      <div class="table-container">
+
+        <table class="table tab-container">
+     
+          <thead class="tab-header blue" style="background-color: #8b269f;">
+        
+            <tr>
+      
+              <th>Company name</th>
+      
+              <th>Email</th>
+      
+              <th>Telephone Number</th>
+      
+              <th>Mobile Number</th>
+      
+              <th>Address</th>
+      
+              <th>Post Code</th>
+      
+              <th>City</th>
+      
+              <th>State</th>
+      
+              <th>Country</th>
+    
+            </tr>
+  
+          </thead>
+
+           <tbody>
+    
+              <tr>
+        
+                <td><%= @company.company_name %></td>
+        
+                <td><%= @company.contact.email %></td>
+        
+                <td><%= @company.contact.telephone_number %></td>
+        
+                <td><%= @company.contact.mobile_number %></td>
+        
+                <td><%= @company.address.address1 %></td>
+        
+                <td><%= @company.address.post_code %></td>
+        
+                <td><%= @company.address.city %></td>
+        
+                <td><%= @company.address.state %></td>
+        
+                <td><%= @company.address.country %></td>
+      
+              </tr>
+    
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
