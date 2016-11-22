@@ -1,7 +1,6 @@
 class CreateInwardManufactureDetails < ActiveRecord::Migration
   def change
     create_table :inward_manufacture_details do |t|
-      t.datetime :manufacture_week
       t.integer :week_number
       t.integer :quantity
       t.string :grading

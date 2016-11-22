@@ -1,11 +1,12 @@
 class CreateOutwards < ActiveRecord::Migration
   def change
     create_table :outwards do |t|
-      t.integer :truck_number
-      t.integer :outward_number
-      t.datetime :outward_date
+      t.string :truck_number
+      t.integer :invoice_number
+      t.datetime :invoice_date
       t.integer :location_id
       t.integer :dispatch_type
+      t.integer :type_of_load
       t.integer :total_quantity
       t.integer :payment_type
       t.integer :warehouse_id

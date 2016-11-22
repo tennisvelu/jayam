@@ -18,12 +18,7 @@ module Api
       end
 
       def create
-      @outward_detail=Outward.create(outward_params)
-      @inward_detail=Inward.where("DATE(inward_date) = ?", @outward_detail.outward_date.to_date).where(:truck_number=>@outward_detail.truck_number)
-      unless @inward_detail.empty?
-       @outward_detail.update(:status=>5)
-      end
-      render json: @outward_detail
+        respond_with :api, :v1, Outward.create(outward_params)
       end
 
       def update

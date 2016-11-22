@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161117075800) do
+ActiveRecord::Schema.define(version: 20161121085214) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(version: 20161117075800) do
   create_table "damages", force: :cascade do |t|
     t.date     "damage_entry_date"
     t.integer  "week_no"
+    t.integer  "grade"
     t.integer  "bags_count"
     t.integer  "warehouse_id"
     t.boolean  "isactive"
@@ -56,22 +57,28 @@ ActiveRecord::Schema.define(version: 20161117075800) do
     t.datetime "updated_at",        null: false
   end
 
+  create_table "grades", force: :cascade do |t|
+    t.string   "grade_type"
+    t.integer  "warehouse_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
   create_table "inward_manufacture_details", force: :cascade do |t|
-    t.datetime "manufacture_week"
     t.integer  "week_number"
     t.integer  "quantity"
     t.string   "grading"
     t.string   "packing"
     t.integer  "inward_id"
     t.boolean  "isactive"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "inwards", force: :cascade do |t|
-    t.integer  "truck_number"
-    t.integer  "inward_number"
-    t.datetime "inward_date"
+    t.string   "truck_number"
+    t.integer  "invoice_number"
+    t.datetime "invoice_date"
     t.integer  "damage_bags_count"
     t.boolean  "return"
     t.integer  "total_quantity"
@@ -81,6 +88,12 @@ ActiveRecord::Schema.define(version: 20161117075800) do
     t.integer  "updated_by"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+  end
+
+  create_table "loading_types", force: :cascade do |t|
+    t.string   "type_of_loading"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   create_table "locations", force: :cascade do |t|
@@ -93,34 +106,37 @@ ActiveRecord::Schema.define(version: 20161117075800) do
   end
 
   create_table "outward_approvals", force: :cascade do |t|
-    t.datetime "dispatch_date"
     t.string   "party_name"
+    t.string   "total_quantity"
+    t.string   "dispatch_place"
+    t.string   "billing_type"
     t.datetime "billing_date"
     t.integer  "status"
     t.integer  "outward_id"
+    t.integer  "warehouse_id"
     t.boolean  "isactive"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
   end
 
   create_table "outward_manufacture_details", force: :cascade do |t|
-    t.datetime "manufacture_week"
     t.integer  "week_number"
     t.integer  "quantity"
     t.string   "grading"
     t.string   "packing"
     t.integer  "outward_id"
     t.boolean  "isactive"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "outwards", force: :cascade do |t|
     t.string   "truck_number"
-    t.string   "outward_number"
-    t.datetime "outward_date"
+    t.integer  "invoice_number"
+    t.datetime "invoice_date"
     t.integer  "location_id"
     t.integer  "dispatch_type"
+    t.integer  "type_of_load"
     t.integer  "total_quantity"
     t.integer  "payment_type"
     t.integer  "warehouse_id"
@@ -130,6 +146,13 @@ ActiveRecord::Schema.define(version: 20161117075800) do
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
     t.string   "status"
+  end
+
+  create_table "packings", force: :cascade do |t|
+    t.string   "packing_type"
+    t.integer  "warehouse_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "roles", force: :cascade do |t|

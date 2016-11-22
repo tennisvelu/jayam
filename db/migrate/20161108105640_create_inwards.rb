@@ -1,9 +1,9 @@
 class CreateInwards < ActiveRecord::Migration
   def change
     create_table :inwards do |t|
-      t.integer :truck_number
-      t.integer :inward_number
-      t.datetime :inward_date
+      t.string :truck_number
+      t.integer :invoice_number
+      t.datetime :invoice_date
       t.integer :damage_bags_count
       t.boolean :return
       t.integer :total_quantity

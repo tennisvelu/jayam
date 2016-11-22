@@ -10,6 +10,7 @@ class WarehousesController < ApplicationController
   # GET /warehouses/1
   # GET /warehouses/1.json
   def show
+   #@warehouse=Warehouse.find(params[:id])
   end
 
   # GET /warehouses/new
@@ -22,6 +23,7 @@ class WarehousesController < ApplicationController
 
   # GET /warehouses/1/edit
   def edit
+   #@warehouse=Warehouse.find(params[:id])
   end
 
   # POST /warehouses
@@ -44,6 +46,7 @@ class WarehousesController < ApplicationController
   # PATCH/PUT /warehouses/1
   # PATCH/PUT /warehouses/1.json
   def update
+    #@warehouse=Warehouse.find(params[:id])
     respond_to do |format|
       if @warehouse.update(warehouse_params)
         format.html { redirect_to @warehouse, notice: 'Warehouse was successfully updated.' }
@@ -59,7 +62,10 @@ class WarehousesController < ApplicationController
   # DELETE /warehouses/1
   # DELETE /warehouses/1.json
   def destroy
+    #@warehouse=Warehouse.find(params[:id])
     @warehouse.destroy
+     Contact.find(@warehouse.contact_id).destroy
+     Address.find(@warehouse.address_id).destroy
     respond_to do |format|
       format.html { redirect_to warehouses_url, notice: 'Warehouse was successfully destroyed.' }
       format.json { head :no_content }

@@ -1,5 +1,5 @@
 class CompaniesController < ApplicationController
-  before_action :set_company, only: [:show, :edit, :update, :destroy]
+ before_action :set_company, only: [:show, :edit, :update, :destroy]
 
   # GET /companies
   # GET /companies.json
@@ -10,6 +10,7 @@ class CompaniesController < ApplicationController
   # GET /companies/1
   # GET /companies/1.json
   def show
+   # @company=Company.find(params[:id])
   end
 
   # GET /companies/new
@@ -22,6 +23,7 @@ class CompaniesController < ApplicationController
 
   # GET /companies/1/edit
   def edit
+    #  @company=Company.find(params[:id])
   end
 
   # POST /companies
@@ -60,6 +62,8 @@ class CompaniesController < ApplicationController
   # DELETE /companies/1.json
   def destroy
     @company.destroy
+     Contact.find(@company.contact_id).destroy
+     Address.find(@company.address_id).destroy
     respond_to do |format|
       format.html { redirect_to companies_url, notice: 'Company was successfully destroyed.' }
       format.json { head :no_content }
@@ -68,14 +72,17 @@ class CompaniesController < ApplicationController
 
   def super_admin
     @warehouse=Warehouse.new
-    #@damage=Company.super_admin(params)
+    @damage=Company.super_admin(params)
+    @warehouse_stock=Company.warehouse_stock(params)
+    @direct_sale=Company.direct_sale(params)
+    @return_bags=Company.inward_return(params)
+    @approve_reject_id=Company.approve_reject_report(params)
+    byebug
     @location1=Location.all
     @outward=Outward.new
     @location=Location.where(:status=>0)
-    @ids=Outward.where(:payment_type=>[1,2]).where(:status=>0).where(:warehouse_id=>User.find(session[:user_id]).warehouse_id).ids
-    @suspense_advance=OutwardApproval.where(:outward_id=>@ids).pluck(:dispatch_date,:party_name,:outward_id)
-   # @warehouse_id=Warehouse.pluck(:id)
-   #byebug
+    @suspense_advance=OutwardApproval.where(:status=>0)
+   
   end  
   
   def location_approve

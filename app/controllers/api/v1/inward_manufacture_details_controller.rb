@@ -18,9 +18,8 @@ module Api
       end
 
       def create
-        @inward_params = InwardManufactureDetail.create(inward_manufacture_detail_params["_json"])
-       render json: @inward_params
-    end
+        respond_with :api, :v1, InwardManufactureDetail.create(inward_manufacture_detail_params)
+       end
 
       def update
         respond_with InwardManufactureDetail.update(inward_manufacture_detail_params)
@@ -33,9 +32,8 @@ module Api
       private
 
       def inward_manufacture_detail_params
-        params.permit!
+       params.require(:inward_manufacture_detail).permit!
       end
-
     end
   end
 end

@@ -45,6 +45,9 @@ Rails.application.routes.draw do
       resources :locations
       post 'outward_approvals/outward_id'
       resources :outward_approvals
+      resources :grades
+      resources :packings
+      resources :loading_types
     end
   end
   # See how all your routes lay out with "rake routes".
