@@ -20,6 +20,11 @@ module Api
         respond_with :api, :v1, Packing.create(packing_params)
       end
 
+      def company_id
+        packing=Packing.where(:company_id=>params[:company_id])
+        render json: packing
+      end  
+
       def update
         respond_with Packing.update(packing_params)
       end

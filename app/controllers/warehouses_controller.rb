@@ -10,7 +10,6 @@ class WarehousesController < ApplicationController
   # GET /warehouses/1
   # GET /warehouses/1.json
   def show
-   #@warehouse=Warehouse.find(params[:id])
   end
 
   # GET /warehouses/new
@@ -23,16 +22,20 @@ class WarehousesController < ApplicationController
 
   # GET /warehouses/1/edit
   def edit
-   #@warehouse=Warehouse.find(params[:id])
   end
 
   # POST /warehouses
   # POST /warehouses.json
   def create
     @warehouse = Warehouse.new(warehouse_params)
-
     respond_to do |format|
+
       if @warehouse.save
+        #byebug
+        grade=Grade.where(:company_id=>@warehouse.company_id).pluck(:id)
+        (0..grade.count-1).map do |i|
+          Stock.create(:grade_id=>i,:book_stock=>0,:physical_stock=>0,:warehouse_id=>@warehouse.company_id)
+            end
         format.html { redirect_to @warehouse, notice: 'Warehouse was successfully created.' }
         format.json { render :show, status: :created, location: @warehouse }
       else
@@ -46,7 +49,6 @@ class WarehousesController < ApplicationController
   # PATCH/PUT /warehouses/1
   # PATCH/PUT /warehouses/1.json
   def update
-    #@warehouse=Warehouse.find(params[:id])
     respond_to do |format|
       if @warehouse.update(warehouse_params)
         format.html { redirect_to @warehouse, notice: 'Warehouse was successfully updated.' }
@@ -62,71 +64,76 @@ class WarehousesController < ApplicationController
   # DELETE /warehouses/1
   # DELETE /warehouses/1.json
   def destroy
-    #@warehouse=Warehouse.find(params[:id])
     @warehouse.destroy
      Contact.find(@warehouse.contact_id).destroy
      Address.find(@warehouse.address_id).destroy
-    respond_to do |format|
+     respond_to do |format|
       format.html { redirect_to warehouses_url, notice: 'Warehouse was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
    def warehouse_admin
-
-    @damage=Damage.new
-    unless params[:warehouse].present?
-    @warehouse_session_id=User.find(session[:user_id]).warehouse_id
-    else
-    @warehouse_session_id=params[:warehouse][:id]
-    end
-    unless params[:to2].present?
-    @damage1=Damage.where(:warehouse_id=>@warehouse_session_id).where(:updated_at=>Date.yesterday..Time.now).pluck(:damage_entry_date,:week_no,:bags_count)
-    else
-    @damage1=Damage.where(:warehouse_id=>@warehouse_session_id).where(:updated_at=>params[:from]..params[:to2]).pluck(:damage_entry_date,:week_no,:bags_count)
-    end
-    unless params[:to1].present?
-    @current_outward=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>0).where(:created_at=>Date.yesterday..Time.now).pluck(:outward_number,:outward_date,:total_quantity)
-    @advance_outward=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>1).where(:status=>3).where(:updated_at=>Date.yesterday-10..Time.now).pluck(:outward_number,:outward_date,:total_quantity)
-    @suspense_outward=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>2).where(:status=>4).where(:created_at=>Date.yesterday-10..Time.now).pluck(:outward_number,:outward_date,:total_quantity)
-   else
-   @current_outward=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>0).where(:created_at=>params[:from]..params[:to1]).pluck(:outward_number,:outward_date,:total_quantity)
-    @advance_outward=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>1).where(:status=>3).where(:updated_at=>params[:from]..params[:to1]).pluck(:outward_number,:outward_date,:total_quantity)
-    @suspense_outward=Outward.where(:warehouse_id=>@warehouse_session_id).where(:payment_type=>2).where(:status=>4).where(:updated_at=>params[:from]..params[:to1]).pluck(:outward_number,:outward_date,:total_quantity)
-  end
+     unless User.find(session[:user_id]).role.role_type=="Super Admin"
+      user_id=session[:user_id]
+      @warehouse_session_id=Warehouse.admin_warehouse_id(user_id)#User.find(session[:user_id]).warehouse_id
+     else
+       unless params[:id].present?
+         @warehouse_session_id=params[:format]
+       else
+         @warehouse_session_id=params[:id]
+       end
+     end
+    warehouse_session_id=@warehouse_session_id
     @inward_total=Inward.where(:warehouse_id=>@warehouse_session_id).pluck(:total_quantity).compact.sum
+    @damage=Damage.new
+    @warehouse_stock=Warehouse.warehouse_stock(params,warehouse_session_id)
+    @direct_sale=Warehouse.warehouse_direct_sale(params,warehouse_session_id)
+    @damage1=Warehouse.warehouse_damage(params,warehouse_session_id)
+    #@damage1=@damage1_cal.paginate(:page => params[:page], :per_page => 20)
+    @inward=Warehouse.warehouse_inward(params,warehouse_session_id)
+    #@inward=@inward_cal.paginate(:page => params[:page], :per_page => 20)
+    @approve_reject_id=Warehouse.approve_reject_report(params,warehouse_session_id)
+    @inward_consolidate=Warehouse.inward_consolidate(params,warehouse_session_id)
+    @outward=Warehouse.outward_date(params,warehouse_session_id)
+   # @outward=@outward_cal.paginate(:page => params[:page], :per_page => 10)
   end  
   
   def damage_entry
-  @week_no=params[:week_no]
-  @bags_count=params[:bags_count]
-  @week_no.map do |i|
-    @bags_count.map do |j|
-      Damage.create(:damage_entry_date=>Date.today,:week_no=>i,:bags_count=>j,:warehouse_id=>User.find(session[:user_id]).warehouse_id)
-    end
-  end
-  redirect_to :action=>"warehouse_admin"
+   warehouse_session_id=params[:id]
+   Warehouse.damage_entries(params,warehouse_session_id)
+   redirect_to :action=>"warehouse_admin",:id=>params[:id]
   end
 
   def inward_date 
     to=(Date.parse(params[:to])+1).strftime("%Y-%m-%d")
-    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to=>to
+    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to=>to,:id=>params[:id],:type=>params[:type]
   end 
 
   def outward_date 
      to=(Date.parse(params[:to])+1).strftime("%Y-%m-%d")
-    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to1=>to
+    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to1=>to,:id=>params[:id]
   end 
 
   def damage_date 
     to=(Date.parse(params[:to])+1).strftime("%Y-%m-%d")
-    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to2=>to
+    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to2=>to,:id=>params[:id]
   end
 
   def direct_sale
     to=(Date.parse(params[:to])+1).strftime("%Y-%m-%d")
-    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to3=>to
+    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to3=>to,:id=>params[:id]
   end  
+
+  def inward_consolidate
+    to=(Date.parse(params[:to])+1).strftime("%Y-%m-%d")
+    redirect_to :action=>"warehouse_admin",:from=>params[:from],:to4=>to,:id=>params[:id]
+  end  
+
+  def approve_reject_report
+  to=(Date.parse(params[:to])+1).strftime("%Y-%m-%d")
+  redirect_to :action=>"warehouse_admin",:from=>params[:from],:to5=>to,:id=>params[:id],:range=>params[:range]
+ end  
 
   private
     # Use callbacks to share common setup or constraints between actions.

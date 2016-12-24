@@ -160,7 +160,7 @@ margin-top: 42px;
     padding:0px 4px;
 transition: transform 0.3s cubic-bezier(0.32, 1.25, 0.375, 1.15) 0s;
 }
-.modal-header{ background-color:#3C7070; font-family:arial; border-bottom:2px solid #BF2033; color:#fff; border-radius:2px 2px 0 0; padding:5px; text-indent:10px;}
+.modal-header{ background-color:#ad1457; font-family:arial; border-bottom:2px solid #BF2033; color:#fff; border-radius:2px 2px 0 0; padding:5px; text-indent:10px;}
 .modal-footer{ padding-top:10px; padding-bottom:10px; padding-left:10px; padding-right:10px;}
 .modal-header > .close{ margin-top:-1px; margin-right:5px;}
 
@@ -365,7 +365,7 @@ transition: all 0.5s ease-in-out;}
 
 .red{background-color:#B71626; color:#fff;}
 .red td{ border-right:1px solid #670000; text-align:center;}
-.blue{background-color:#3C7070; color:#fff;}
+.blue{background-color:#d81b60; color:#fff;}
 .blue td{ border-right:1px solid #000026; text-align:center;}
 .grey{background-color:#fff; color:#333333;}
 .grey td{ border-right:1px solid #cfcfcf; text-align:center;}

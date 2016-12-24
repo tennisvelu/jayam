@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161121085214) do
+ActiveRecord::Schema.define(version: 20161212103025) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,15 @@ ActiveRecord::Schema.define(version: 20161121085214) do
     t.string   "country"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "approval_grade_details", force: :cascade do |t|
+    t.integer  "grade_id"
+    t.integer  "quantity"
+    t.integer  "outward_approval_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.integer  "balance"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -46,7 +55,6 @@ ActiveRecord::Schema.define(version: 20161121085214) do
 
   create_table "damages", force: :cascade do |t|
     t.date     "damage_entry_date"
-    t.integer  "week_no"
     t.integer  "grade"
     t.integer  "bags_count"
     t.integer  "warehouse_id"
@@ -55,13 +63,15 @@ ActiveRecord::Schema.define(version: 20161121085214) do
     t.integer  "updated_by"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.integer  "total_quantity"
+    t.integer  "status"
   end
 
   create_table "grades", force: :cascade do |t|
     t.string   "grade_type"
-    t.integer  "warehouse_id"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.integer  "company_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "inward_manufacture_details", force: :cascade do |t|
@@ -79,15 +89,15 @@ ActiveRecord::Schema.define(version: 20161121085214) do
     t.string   "truck_number"
     t.integer  "invoice_number"
     t.datetime "invoice_date"
-    t.integer  "damage_bags_count"
     t.boolean  "return"
     t.integer  "total_quantity"
     t.integer  "warehouse_id"
     t.boolean  "isactive"
     t.integer  "created_by"
     t.integer  "updated_by"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.boolean  "rail_status"
   end
 
   create_table "loading_types", force: :cascade do |t|
@@ -117,6 +127,7 @@ ActiveRecord::Schema.define(version: 20161121085214) do
     t.boolean  "isactive"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
+    t.integer  "total_balance"
   end
 
   create_table "outward_manufacture_details", force: :cascade do |t|
@@ -150,7 +161,7 @@ ActiveRecord::Schema.define(version: 20161121085214) do
 
   create_table "packings", force: :cascade do |t|
     t.string   "packing_type"
-    t.integer  "warehouse_id"
+    t.integer  "company_id"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
   end
@@ -160,6 +171,15 @@ ActiveRecord::Schema.define(version: 20161121085214) do
     t.boolean  "isactive"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "stocks", force: :cascade do |t|
+    t.integer  "grade_id"
+    t.integer  "book_stock"
+    t.integer  "physical_stock"
+    t.integer  "warehouse_id"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
   end
 
   create_table "users", force: :cascade do |t|

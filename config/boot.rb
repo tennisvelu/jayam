@@ -5,7 +5,7 @@ require 'rails/commands/server'
   module Rails
     class Server
       def default_options
-        super.merge(Host: "192.168.1.56", Port: 5000 )
+        super.merge(Host: "192.168.1.56", Port: 4004 )
       end
     end
 end

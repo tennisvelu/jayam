@@ -1,96 +1,108 @@
 class Company < ActiveRecord::Base
   belongs_to :address
   belongs_to :contact 
+  has_many :warehouses
   accepts_nested_attributes_for :address
   accepts_nested_attributes_for :contact
 
-  def self.super_admin(params)
+  def self.damage_bags(params)
     damage=[]
     Warehouse.ids.map do |j|
+    company=Warehouse.find(j).company_id
     @warehouse_name=Warehouse.find(j).warehouse_name 
    unless params[:to].present?
-      @inward_damage=Inward.where(:warehouse_id=>j).where(:created_at=>Date.today-10..Date.today).pluck(:damage_bags_count).compact.sum
-      @warehouse_damage=Damage.where(:warehouse_id=>j).where(:created_at=>Date.today-10..Date.today).pluck(:bags_count).compact.sum
-      damage << [@warehouse_name,@inward_damage,@warehouse_damage]
+      @rail_damage=Damage.where(:warehouse_id=>j).where(:status=>1).where(:created_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:bags_count).compact.sum
+      @road_damage=Damage.where(:warehouse_id=>j).where(:status=>2).where(:created_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:bags_count).compact.sum
+      @return_damage=Damage.where(:warehouse_id=>j).where(:status=>3).where(:created_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:bags_count).compact.sum
+      @warehouse_damage=Damage.where(:warehouse_id=>j).where(:status=>4).where(:created_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:bags_count).compact.sum
+      damage = [company,@warehouse_name,@rail_damage,@road_damage,@warehouse_damage]
    else
-     @inward_damage =Inward.where(:warehouse_id=>j).where(:created_at=>params[:from]..params[:to]).pluck(:damage_bags_count).compact.sum
-     @warehouse_damage=Damage.where(:warehouse_id=>j).where(:created_at=>params[:from]..params[:to]).pluck(:bags_count).compact.sum
-     damage << [@warehouse_name,@inward_damage,@warehouse_damage]
+      @rail_damage=Damage.where(:warehouse_id=>j).where(:status=>1).where(:created_at=>params[:from]..params[:to]).pluck(:bags_count).compact.sum
+      @road_damage=Damage.where(:warehouse_id=>j).where(:status=>2).where(:created_at=>params[:from]..params[:to]).pluck(:bags_count).compact.sum
+      @return_damage=Damage.where(:warehouse_id=>j).where(:status=>3).where(:created_at=>params[:from]..params[:to]).pluck(:bags_count).compact.sum
+      @warehouse_damage=Damage.where(:warehouse_id=>j).where(:status=>4).where(:created_at=>params[:from]..params[:to]).pluck(:bags_count).compact.sum
+     damage = [company,@warehouse_name,@rail_damage,@road_damage,@warehouse_damage]
   	end
     end
   end	
 
   def self.location_approve(params)
+    unless params[:location_ids].nil?
    if params["commit"]=="approve"
     params[:location_ids].map {|i| Location.find(i).update(:status=>1)}
     else
     params[:location_ids].map {|i| Location.find(i).update(:status=>2)}
    end
+   end
    end	
 
    def self.suspense_advance_approve(params)
+    unless params[:outward_ids].nil?
    	if params["commit"]=="approve"
-     params[:outward_ids].map {|i| Outward.find(i).update(:status=>1)}
-     params[:outward_ids].map {|i| OutwardApproval.find_by(:outward_id=>i).update(:status=>1)}
+     params[:outward_ids].map {|i| OutwardApproval.find(i).update(:status=>1)}
    else
-     params[:outward_ids].map {|i| Outward.find(i).update(:status=>2)}
-     params[:outward_ids].map {|i| OutwardApproval.find_by(:outward_id=>i).update(:status=>2)}
-
+     params[:outward_ids].map {|i| OutwardApproval.find(i).update(:status=>2)}
    end
-end
+  end
+  end
 
 def self.warehouse_stock(params)
 warehouse_stock=[]
 Warehouse.ids.map do |l|
+company=Warehouse.find(l).company_id
 warehouse_name=Warehouse.find(l).warehouse_name
-inward_total=Inward.where(:warehouse_id=>l).pluck(:total_quantity).compact.sum
-outward_current=Outward.where(:payment_type=>0).pluck(:total_quantity).compact.sum
-outward_advance_bill=Outward.where(:payment_type=>1).where(:status=>4).pluck(:total_quantity).compact.sum
-outward_suspense_bill=Outward.where(:payment_type=>2).where(:status=>4).pluck(:total_quantity).compact.sum
-outward_suspense_dispatch=Outward.where(:payment_type=>2).where(:status=>3).pluck(:total_quantity).compact.sum
-by_book=inward_total-outward_current-outward_advance_bill-outward_suspense_bill
-physical_stock=inward_total-outward_current-outward_suspense_dispatch+outward_advance_bill
-warehouse_stock << [warehouse_name,by_book,physical_stock]
+book=Stock.where(:warehouse_id=>l).pluck(:book_stock).compact.sum
+physical=Stock.where(:warehouse_id=>l).pluck(:physical_stock).compact.sum
+damage=Damage.where(:warehouse_id=>l).pluck(:total_quantity).compact.sum
+warehouse_stock = [company,warehouse_name,book,physical,damage]
 end
-end
-
-def self.damage_date(params)
-   
 end
 
 def self.direct_sale(params)
 @direct=[]
+rail_head=LoadingType.find_by(:type_of_loading=>"Rail Head").id
+direct_sale=LoadingType.find_by(:type_of_loading=>"Direct Sale").id
+transhipment=LoadingType.find_by(:type_of_loading=>"Transhipment").id
+godown=LoadingType.find_by(:type_of_loading=>"Godown").id
+damage=LoadingType.find_by(:type_of_loading=>"Damage").id
 Warehouse.ids.map do |x|
+company=Warehouse.find(x).company_id
 warehouse_name=Warehouse.find(x).warehouse_name
 unless params[:to3].present?
-@direct_sale_bags = Outward.where(:warehouse_id=>x).where(:type_of_load=>1).where(:created_at=>Date.today-10..Date.today+1).pluck(:total_quantity).compact.sum
+@rail_head  = Outward.where(:warehouse_id=>x).where(:type_of_load=>rail_head).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+@direct_sale = Outward.where(:warehouse_id=>x).where(:type_of_load=>direct_sale).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+@transhipment = Outward.where(:warehouse_id=>x).where(:type_of_load=>transhipment).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+@godown = Outward.where(:warehouse_id=>x).where(:type_of_load=>godown).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+@damage = Outward.where(:warehouse_id=>x).where(:type_of_load=>damage).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+@total = @direct_sale+@rail_head+@transhipment+@godown+@damage
 else
-@direct_sale_bags = Outward.where(:warehouse_id=>x).where(:type_of_load=>1).where(:created_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum
+@rail_head = Outward.where(:warehouse_id=>x).where(:type_of_load=>rail_head).where(:updated_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum
+@direct_sale = Outward.where(:warehouse_id=>x).where(:type_of_load=>direct_sale).where(:updated_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum
+@transhipment = Outward.where(:warehouse_id=>x).where(:type_of_load=>transhipment).where(:updated_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum
+@godown = Outward.where(:warehouse_id=>x).where(:type_of_load=>godown).where(:updated_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum
+@damage = Outward.where(:warehouse_id=>x).where(:type_of_load=>damage).where(:updated_at=>params[:from]..params[:to3]).pluck(:total_quantity).compact.sum
+@total = @direct_sale+@rail_head+@transhipment+@godown+@damage
 end
-@direct << [warehouse_name,@direct_sale_bags]
+@direct =[company,warehouse_name,@rail_head,@direct_sale,@transhipment,@godown,@damage,@total]
 end
 end
 
 
-def self.inward_return(params)
-inward_return_bags=[]
-Warehouse.ids.map do |k|
-warehouse_name=Warehouse.find(k).warehouse_name
-unless params[:to1].present?
-@return_bags=Inward.where(:warehouse_id=>k).where(:return=>true).pluck(:total_quantity).compact.sum
+def self.inward_consolidate(params)
+Warehouse.ids.map do |x|
+company=Warehouse.find(x).company_id
+warehouse_name=Warehouse.find(x).warehouse_name
+unless params[:to4].present?
+  @byroad=Inward.where(:warehouse_id=>x).where(:rail_status=>false).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+  @byrail=Inward.where(:warehouse_id=>x).where(:rail_status=>true).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:total_quantity).compact.sum
+  @return=Damage.where(:warehouse_id=>x).where(:status=>3).where(:updated_at=>Date.today.strftime("%Y-%m-01")..(Date.today+1).strftime("%Y-%m-%d")).pluck(:bags_count).compact.sum
 else
-@return_bagsInward.where(:warehouse_id=>k).where(:created_at=>params[:from]..params[:to1]).where(:return=>true).pluck(:total_quantity).compact.sum
+  @byroad=Inward.where(:warehouse_id=>x).where(:rail_status=>false).where(:updated_at=>params[:from]..params[:to4]).pluck(:total_quantity).compact.sum
+  @byrail=Inward.where(:warehouse_id=>x).where(:rail_status=>true).where(:updated_at=>params[:from]..params[:to4]).pluck(:total_quantity).compact.sum
+  @return=Damage.where(:warehouse_id=>x).where(:updated_at=>params[:from]..params[:to4]).pluck(:bags_count).compact.sum
 end
-inward_return_bags << [warehouse_name,@return_bags]
+inward=[company,warehouse_name,@byroad,@byrail,@return]
 end  
-end
-
-def self.approve_reject_report(params)
-if params[:to2].present?
-approval_reject_id=OutwardApproval.where(:status=>[1,2]).where(:updated_at=>params[:from]..params[:to2])
-else
-approval_reject_id=OutwardApproval.where(:status=>[1,2])
-end
 end
 
 end

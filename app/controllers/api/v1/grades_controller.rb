@@ -20,6 +20,11 @@ module Api
         respond_with :api, :v1, Grade.create(grade_params)
       end
 
+      def company_id
+        grade=Grade.where(:company_id=>params[:company_id])
+        render json: grade
+      end  
+
       def update
         respond_with Grade.update(grade_params)
       end

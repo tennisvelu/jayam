@@ -2,7 +2,7 @@ module Api
   module V1
     class OutwardApprovalsController < ApplicationController
       skip_before_action :verify_authenticity_token
-        skip_before_action :check_session
+      skip_before_action :check_session
     #  skip_power_check
      # skip_before_filter :authenticate
 
@@ -24,18 +24,40 @@ module Api
       def update
         respond_with OutwardApproval.update(outward_approval_params)
       end
-      
-      def outward_id
-       @out=Outward.find(params[:outward_id])
-       @outward_id=OutwardApproval.find_by(:outward_id=>params[:outward_id])
 
-       respond_to do |format|
-       format.json  { render :json => {:outward=> @out, 
-                                  :outward_approval => @outward_id }}
+      def billing_date_update
+        bill=OutwardApproval.find_by(:outward_id=>params[:outward_id]).update(:billing_date=>params[:billing_date],:status=>params[:status])
+        render json: bill 
       end
       
-       end  
+      def outward_approval_total_update
+        @outward_id=OutwardApproval.find(params[:id]).update(:total_quantity=>params[:total_quantity],:total_balance=>params[:total_balance],:status=>params[:status])
+        render json: @outward_id 
+      end
 
+      def outward_approval_status_update
+        status_update=OutwardApproval.find(params[:id]).update(:status=>params[:status])
+        outward_approval=OutwardApproval.find(params[:id])
+        bill_type=outward_approval.billing_type
+        status=outward_approval.status
+        @warehouse_id=outward_approval.warehouse_id
+        grade_quantity=ApprovalGradeDetail.where(:outward_approval_id=>params[:id]).pluck(:grade_id,:quantity)
+        if bill_type=="1" && status==4
+          grade_quantity.map do |i| 
+          stock=Stock.find_by(:grade_id=>i[0],:warehouse_id=>@warehouse_id)
+          book=stock.book_stock-i[1]
+          stock.update(:book_stock=>book)
+         end
+        elsif bill_type=="2" && status==3
+          grade_quantity.map do |i| 
+          stock=Stock.find_by(:grade_id=>i[0],:warehouse_id=>@warehouse_id)
+          physical=stock.physical_stock-i[1]
+          stock.update(:physical_stock=>physical)
+         end
+        end
+        render json: status_update
+      end  
+    
       def destroy
         respond_with OutwardApproval.destroy(params[:id])
       end

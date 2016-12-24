@@ -18,8 +18,10 @@ module Api
       end
 
       def create
-        respond_with :api, :v1, Inward.create(inward_params)
+       inward=Inward.create(inward_params)
+       render json: inward
       end
+
       
       def warehouse_identification
         @warehouse_id_api=Inward.where(:warehouse_id=>params[:format].to_i)

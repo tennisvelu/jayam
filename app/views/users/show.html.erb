@@ -12,76 +12,51 @@
 
     <div class="panel-heading" role="tab" id="headingOne">
 
-      <strong class="panel-title h-arrow">Listing Users</strong>
-
-        <%= link_to '<i class="fa fa-hand-o-right"></i>'.html_safe,users_path,:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
-
-        <%= link_to '<i class="fa fa-pencil"></i>'.html_safe,edit_user_path(@user),:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
-
     </div>
-
+    <center>
     <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
 
-      <div class="table-container">
+      <div class="table-container" style="width:30%;">
 
         <table class="table tab-container">
      
-          <thead class="tab-header blue" style="background-color: #8b269f;">
-        
-            <tr>
-      
+          <thead class="tab-header blue" style="background-color: #0288d1;">
+         <%= link_to '<i class="fa fa-hand-o-right" style="color:#d81b60"></i>'.html_safe,users_path,:class=>"icon-button-red",:title=>"Back", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
 
-    <th>First name</th>
-    <th>Last name</th>
-    <th>User name</th>
-    <th>Password</th>
-    <th>Email</th>
-    <th>Warehouse Name</th>
-    <th>Telephone Number</th>
-    <th>Mobile Number</th>
-    <th>Address</th>
-    <th>Post Code</th>
-    <th>City</th>
-    <th>State</th>
-    <th>Country</th>
-     
-     </tr> 
-
-   </thead>
-
-    <tbody>
+        <%= link_to '<i class="fa fa-pencil" style="color:#d81b60"></i>'.html_safe,edit_user_path(@user),:class=>"icon-button-red",:title=>"Edit", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+            </thead> <br><br>
+           <center style="background-color:#d81b60;height:30px;color:white"><h4><%=@user.first_name%> Details</h4></center>
+           <tr><td style="text-align: left;">Warehouse Name</td>
+           <td style="text-align: left;"><%= Warehouse.find(@user.warehouse_id).warehouse_name %></td></tr>
+           <tr><td style="text-align: left;">Role</td>
+           <td style="text-align: left;"><%= Role.find(@user.role_id).role_type %></td></tr>
+            <tr>  
+           <td style="text-align: left;">First name</td>
+           <td style="text-align: left;"><%= @user.first_name %></td></tr>
+           <tr><td style="text-align: left;">Last name</td>
+           <td style="text-align: left;"><%= @user.last_name %></td></tr>
+           <tr><td style="text-align: left;">User name</td>
+           <td style="text-align: left;"><%= @user.user_name %></td></tr>
+           <tr><td style="text-align: left;">Password</td>
+           <td style="text-align: left;"><%= @user.password %></td></tr>
+           <tr><td style="text-align: left;">Email</td>
+           <td style="text-align: left;"><%= @user.contact.email %></td></tr>
+           <tr><td style="text-align: left;">Telephone Number</td>
+           <td style="text-align: left;"><%= @user.contact.telephone_number %></td></tr>
+           <tr><td style="text-align: left;">Mobile Number</td>
+           <td style="text-align: left;"><%= @user.contact.mobile_number %></td></tr>
+           <tr><td style="text-align: left;">Address</td>
+           <td style="text-align: left;"><%= @user.address.address1 %></td></tr>
+           <tr><td style="text-align: left;">Post Code</td>
+           <td style="text-align: left;"><%= @user.address.post_code %></td></tr>
+           <tr><td style="text-align: left;">City</td>
+           <td style="text-align: left;"><%= @user.address.city %></td></tr>
+           <tr><td style="text-align: left;">State</td>
+           <td style="text-align: left;"><%= @user.address.state %></td></tr>
+           <tr><td style="text-align: left;">Country</td>
+           <td style="text-align: left;"><%= @user.address.country %></td>
+          </tr>
     
-      <tr>  
-
- <td><%= @user.first_name %></td>
-
-  <td><%= @user.last_name %></td>
-
-  <td><%= @user.user_name %></td>
-
-  <td><%= @user.password %></td>
-
-  <td><%= @user.contact.email %></td>
-
-  <td><%= Warehouse.find(@user.warehouse_id).warehouse_name %></td>
-
-  <td><%= @user.contact.telephone_number %></td>
-
-  <td><%= @user.contact.mobile_number %></td>
-
-  <td><%= @user.address.address1 %></td>
-
-  <td><%= @user.address.post_code %></td>
-
-  <td><%= @user.address.city %></td>
-
-  <td><%= @user.address.state %></td>
-
-  <td><%= @user.address.country %></td>
-
-              </tr>
-    
-          </tbody>
 
         </table>
 
@@ -89,6 +64,6 @@
 
     </div>
 
-  </div>
+  </div></center>
 
 </div>

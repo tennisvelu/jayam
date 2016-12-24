@@ -10,7 +10,7 @@
 
   <div class="panel panel-default">
 
-    <div class="panel-heading" role="tab" id="headingOne"><strong class="panel-title h-arrow">Listing Users<span title="Create New Branch"><%= link_to '<i class="fa fa-plus"></i>'.html_safe,new_user_path,:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%></span></strong></div>
+    <div class="panel-heading" role="tab" id="headingOne"><center><strong class="panel-title h-arrow">Listing Users</center><span title="Create New User"><%= link_to '<i class="fa fa-plus"></i>'.html_safe,new_user_path,:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%></span></strong></div>
 
     <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
 
@@ -18,16 +18,18 @@
 
         <table class="table tab-container">
      
-          <thead class="tab-header blue" style="background-color: #8b269f;">
+          <thead class="tab-header blue" style="background-color: #0288d1;">
         
             <tr>
     <tr>
+      <th>Company Name</th>
+      <th>Warehouse Name</th>
+      <th>Role</th>
       <th>First name</th>
       <th>Last name</th>
       <th>User name</th>
       <th>Password</th>
       <th>Email</th>
-      <th>Warehouse Name</th>
       <th>Telephone Number</th>
       <th>Mobile Number</th>
       <th>Address</th>
@@ -41,12 +43,15 @@
 
   <tbody>
     <% @users.each do |user| %>
+        <%unless Role.find(user.role_id).role_type=="Super Admin"%>
       <tr>
+        <td><%= Company.find(Warehouse.find(user.warehouse_id).company_id).company_name %></td>
+        <td><%= Warehouse.find(user.warehouse_id).warehouse_name %></td>
+        <td><%= Role.find(user.role_id).role_type %></td>
         <td><%= user.first_name %></td>
         <td><%= user.last_name %></td>
         <td><%= user.user_name %></td>
         <td><%= user.password %></td>
-        <td><%= Warehouse.find(user.warehouse_id).warehouse_name %></td>
         <td><%= user.contact.email %></td>
         <td><%= user.contact.telephone_number %></td>
         <td><%= user.contact.mobile_number %></td>
@@ -64,7 +69,7 @@
 
               </tr>
     
-            <% end %>
+            <% end %><%end%>
   
           </tbody>
 

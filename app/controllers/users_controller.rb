@@ -18,11 +18,15 @@ class UsersController < ApplicationController
     @user = User.new
     @user.build_contact
     @user.build_address
-
+    @warehouse = []
   end
 
   # GET /users/1/edit
   def edit
+  end
+
+  def dynamic_warehouse
+    @warehouse = Warehouse.where(:company_id=>params[:format])
   end
 
   # POST /users
@@ -30,23 +34,23 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
 
-    respond_to do |format|
       if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render :show, status: :created, location: @user }
+        Address.find(@user.address_id).update_attributes(:city=>params[:city],:state=>params[:state],:country=>params[:country])
+        redirect_to users_path
+        flash[:notice] = 'User was successfully created.'
       else
-        format.html { render :new }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
+        redirect_to users_path
+        flash[:notice] = @user.errors.full_messages[0]
       end
-       Address.find(@user.address_id).update_attributes(:city=>params[:city],:state=>params[:state],:country=>params[:country])
+       
     end
-  end
-
   # PATCH/PUT /users/1
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
+      warehouse_id=User.find(params[:id]).warehouse_id
       if @user.update(user_params)
+        @user.update(:warehouse_id=>warehouse_id)
         format.html { redirect_to @user, notice: 'User was successfully updated.' }
         format.json { render :show, status: :ok, location: @user }
       else
@@ -71,6 +75,7 @@ class UsersController < ApplicationController
 
   def login_page
   @users=User.new
+  #render :layout=>false
   end  
  def logout
    session[:user_id]=nil
@@ -78,21 +83,21 @@ class UsersController < ApplicationController
  end
 
 
- def validate_login
-    
+ def validate_login 
     params.permit!
     user = User.where(:user_name=>params[:user_name], :password=>params[:password])
     unless user.empty?
       session[:user_id] = user[0].id
-      role=user[0].role_id
+      role_id=user[0].role_id
+      role=Role.find(role_id).role_type
       case role
-      when 1
+      when "Super Admin"
         redirect_to companies_super_admin_path
-      when 2
+      when "Warehouse Admin"
         redirect_to warehouses_warehouse_admin_path
       end
-      flash[:success]= "Successfully Logged in!"
     else
+     flash[:notice]= "Invalid UserName or Password" 
      redirect_to root_path
     end  
 end

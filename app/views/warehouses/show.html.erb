@@ -12,84 +12,55 @@
 
     <div class="panel-heading" role="tab" id="headingOne">
 
-      <strong class="panel-title h-arrow">Listing Warehouses</strong>
+      
 
-        <%= link_to '<i class="fa fa-hand-o-right"></i>'.html_safe,warehouses_path,:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
-
-        <%= link_to '<i class="fa fa-pencil"></i>'.html_safe,edit_warehouse_path(@warehouse),:class=>"icon-button-red", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
-
+        
     </div>
-
+    <center>
     <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
 
-      <div class="table-container">
+      <div class="table-container" style="width:30%;">
 
         <table class="table tab-container">
      
-          <thead class="tab-header blue" style="background-color: #8b269f;">
-        
-            <tr>
-      
-             <th>Warehouse name</th>
-      
-              <th>Email</th>
+          <thead class="tab-header blue" style="background-color: #0288d1;">
 
-              <th>Company Name</th>
-      
-              <th>Telephone Number</th>
-      
-              <th>Mobile Number</th>
-      
-              <th>Address</th>
-      
-              <th>Post Code</th>
-      
-              <th>City</th>
-      
-              <th>State</th>
-      
-              <th>Country</th>
-    
-            </tr>
+           <%= link_to '<i class="fa fa-hand-o-right" style="color:#d81b60"></i>'.html_safe,warehouses_path,:class=>"icon-button-red",:title=>"Back", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+
+            <%= link_to '<i class="fa fa-pencil" style="color:#d81b60"></i>'.html_safe,edit_warehouse_path(@warehouse),:class=>"icon-button-red",:title=>"Edit", :style=>"text-align:right; background-color:white; color:green;float:right;"%>
+
+           </thead><br><br>
+            <center style="background-color:#d81b60;height:30px;color:white"><h4><%=@warehouse.warehouse_name%> Details</h4></center>
+            <tr>      
+             <td style="text-align: left;">Warehouse name</td>
+             <td style="text-align: left;"><%= @warehouse.warehouse_name %></td></tr>
+             <tr><td style="text-align: left;">Email</td>
+             <td style="text-align: left;"><%= @warehouse.contact.email %></td></tr>
+             <tr><td style="text-align: left;">Company Name</td>
+             <td style="text-align: left;"><%= Company.find(@warehouse.company_id).company_name %></td></tr>
+             <tr><td style="text-align: left;">Telephone Number</td>
+             <td style="text-align: left;"><%= @warehouse.contact.telephone_number %></td></tr>   
+             <tr><td style="text-align: left;">Mobile Number</td>
+             <td style="text-align: left;"><%= @warehouse.contact.mobile_number %></td></tr>
+             <tr><td style="text-align: left;">Address</td>
+             <td style="text-align: left;"><%= @warehouse.address.address1 %></td></tr>
+             <tr><td style="text-align: left;">Post Code</td>
+             <td style="text-align: left;"><%= @warehouse.address.post_code %></td></tr>
+             <tr><td style="text-align: left;">City</td>
+             <td style="text-align: left;"><%= @warehouse.address.city %></td></tr>  
+             <tr><td style="text-align: left;">State</td>
+             <td style="text-align: left;"><%= @warehouse.address.state %></td></tr>     
+             <tr><td style="text-align: left;">Country</td>
+             <td style="text-align: left;"><%= @warehouse.address.country %></td>
+             </tr>
   
-          </thead>
-
-           <tbody>
-         
-         <tr>
-
-  <td><%= @warehouse.warehouse_name %></td>
-
- <td> <%= @warehouse.contact.email %></td>
-
-  <td> <%= Company.find(@warehouse.company_id).company_name %></td>
-
-  <td><%= @warehouse.contact.telephone_number %></td>
-
-  <td><%= @warehouse.contact.mobile_number %></td>
-
-  <td><%= @warehouse.address.address1 %></td>
-
-  <td><%= @warehouse.address.post_code %></td>
-
- <td> <%= @warehouse.address.city %></td>
-
- <td> <%= @warehouse.address.state %></td>
-
-  <td><%= @warehouse.address.country %></td>
-      
-
-              </tr>
-    
-          </tbody>
-
-        </table>
+            </table>
 
       </div>
 
     </div>
 
-  </div>
+  </div></center>
 
 </div>
 

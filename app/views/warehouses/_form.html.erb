@@ -12,12 +12,10 @@
  
       <div class="tripeco-container">
       
-        <div class="tripeco-head2" style="border-bottom: 3px solid #8b269f;">Warehouse Form
+        <div class="tripeco-head2" style="border-bottom: 3px solid #0288d1;">Warehouse Form
 
-          <%= link_to '<i class="fa fa-hand-o-right"></i>'.html_safe, warehouses_path,:class=>"icon-red-button",:style=>"float:right; color:green; background-color:white;" %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <%= link_to '<i class="fa fa-hand-o-right" style="color:#d81b60"></i>'.html_safe, warehouses_path,:class=>"icon-red-button",:title=>"Back",:style=>"float:right; color:green; background-color:white;" %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-          <%= link_to '<i class="fa fa-eye"></i>'.html_safe,@warehouse,:class=>"icon-red-button" ,:style=>"float:right; color:green; background-color:white;"%>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        
         </div>
         
         <div class="tripeco-body">
@@ -41,12 +39,24 @@
                </div>
               <% end %>
 
+                <div class="form-col">
+ 
+                    <div class="form-group">
+    
+       <%= f.label :company %><br>
+       <%= f.collection_select(:company_id, Company.all, :id, :company_name,{include_blank:"Select Company"},{:class => "form-control", required: true })%>
+    
+                     </div>
+
+                   </div>
+    
+
                  <div class="form-col">
  
                     <div class="form-group">
     
     <%= f.label :warehouse_name %><br>
-    <%= f.text_field :warehouse_name ,:class=>"form-control" %>
+    <%= f.text_field :warehouse_name ,:class=>"form-control" ,required:true%>
  
                     </div>
 
@@ -60,7 +70,7 @@
                     <div class="form-group">
     
       <%= c.label :email %><br>
-      <%= c.text_field :email,:class=>"form-control"  %>
+      <%= c.text_field :email,:class=>"form-control",required:true  %>
      
                     </div>
 
@@ -72,7 +82,7 @@
                     <div class="form-group">
 
       <%= c.label :telephone_number %><br>
-      <%= c.text_field :telephone_number,:class=>"form-control"  %>
+      <%= c.text_field :telephone_number,:class=>"form-control" ,required:true%>
      
                     </div>
 
@@ -84,7 +94,7 @@
                     <div class="form-group">
     
       <%= c.label :mobile_number %><br>
-      <%= c.text_field :mobile_number,:class=>"form-control"  %>
+      <%= c.text_field :mobile_number,:class=>"form-control" ,required:true %>
   
                     </div>
 
@@ -100,7 +110,7 @@
                     <div class="form-group">
     
       <%= a.label :address %><br>
-      <%= a.text_field :address1,:class=>"form-control"  %>
+      <%= a.text_field :address1,:class=>"form-control",required:true  %>
      
                     </div>
 
@@ -112,7 +122,7 @@
                     <div class="form-group">
     
       <%= a.label :post_code %><br>
-      <%= a.text_field :post_code,:class=>"form-control"  %>
+      <%= a.text_field :post_code,:class=>"form-control",required:true  %>
     
                     </div>
 
@@ -160,30 +170,13 @@
 
                  </div>
 
-
-  
-
-
-  <% end %>
-
-  
-                      <div class="form-col">
- 
-                    <div class="form-group">
-    
-      <%= f.label :company %><br>
-      <%= f.collection_select :company_id, Company.all, :id, :company_name,:prompt => "Select"%>
-    
-                     </div>
-
-                   </div>
-    
+             <% end %>
   
                   <div class="card-footer">
 
                     <div class="save">
 
-                    <button type="submit" class="btn btn-info" style="float:right;background-color:white;color:green;margin-top: 3%;"><i class="fa fa-floppy-o"></i></button>
+                    <button type="submit" class="btn btn-info" title="Submit" style="float:right;background-color:white;color:green;margin-top: 3%;"><i class="fa fa-floppy-o" style="color:#d81b60"></i></button>
 
                     <% end %>
 
